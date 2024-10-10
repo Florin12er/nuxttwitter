@@ -12,11 +12,11 @@
             </div>
           </div>
           <!-- Main Content -->
-          <main class="col-span-12 md:col-span-8 xl:col-span-7 bg-red-500">
-            <div>Test</div>
+          <main class="col-span-12 md:col-span-8 xl:col-span-7">
+            <RouterView />
           </main>
           <!-- Right Sidebar -->
-          <div class="hidden md:block xs:col-span-1 xl:col-span-2">
+          <div class="hidden col-span-3 md:block xl:col-span-3">
             <div class="sticky top-0">
               <SidebarRight />
             </div>
@@ -28,5 +28,5 @@
 </template>
 
 <script setup>
-const darkMode = ref(false);
+const darkMode = ref(true);
 </script>
