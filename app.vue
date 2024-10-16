@@ -2,7 +2,10 @@
     <Toaster richColors />
     <div :class="{ dark: darkMode }">
         <div class="bg-white dark:bg-dim-900 text-black dark:text-white">
-            <div v-if="user" class="min-h-full">
+            <LoadingPage v-if="isLoading" />
+
+            <!--App-->
+            <div v-else-if="user" class="min-h-full">
                 <div class="grid grid-cols-12 mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:gap-5">
                     <!-- Left Sidebar -->
                     <div class="hidden md:block xs:col-span-1 xl:col-span-2">
@@ -31,10 +34,11 @@
 import { Toaster } from "vue-sonner";
 const darkMode = ref(true);
 
-const { useAuthUser, initAuth } = useAuth();
+const { useAuthUser, initAuth, useAuthLoading } = useAuth();
+const isLoading = useAuthLoading();
 const user = useAuthUser();
 
 onBeforeMount(() => {
     initAuth();
-})
+});
 </script>
