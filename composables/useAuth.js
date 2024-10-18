@@ -1,101 +1,101 @@
 import { jwtDecode } from "jwt-decode";
 export default () => {
-    const useAuthToken = () => useState("auth_token");
-    const useAuthUser = () => useState("auth_user");
-    const useAuthLoading = () => useState("auth_loading", () => true);
+  const useAuthToken = () => useState("auth_token");
+  const useAuthUser = () => useState("auth_user");
+  const useAuthLoading = () => useState("auth_loading", () => true);
 
-    const setToken = (newToken) => {
-        const authToken = useAuthToken();
-        authToken.value = newToken;
-    };
+  const setToken = (newToken) => {
+    const authToken = useAuthToken();
+    authToken.value = newToken;
+  };
 
-    const setUser = (newUser) => {
-        const authUser = useAuthUser();
-        authUser.value = newUser;
-    };
-    const setIsAuthLoading = (value) => {
-        const authLoading = useAuthLoading();
-        authLoading.value = value;
-    };
+  const setUser = (newUser) => {
+    const authUser = useAuthUser();
+    authUser.value = newUser;
+  };
+  const setIsAuthLoading = (value) => {
+    const authLoading = useAuthLoading();
+    authLoading.value = value;
+  };
 
-    const login = ({ username, password }) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const data = await $fetch("/api/auth/login", {
-                    method: "POST",
-                    body: { username, password },
-                });
-                setToken(data.access_token);
-                setUser(data.user);
-
-                resolve(true);
-            } catch (e) {
-                reject(e);
-            }
+  const login = ({ username, password }) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await $fetch("/api/auth/login", {
+          method: "POST",
+          body: { username, password },
         });
-    };
+        setToken(data.access_token);
+        setUser(data.user);
 
-    const refreshToken = () => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const data = await $fetch("/api/auth/refresh");
-                setToken(data.access_token);
-                resolve(true);
-            } catch (e) {
-                reject(e);
-            }
-        });
-    };
-    const getUser = () => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const data = await useFetchApi("/api/auth/user");
-                setUser(data.user);
-                resolve(true);
-            } catch (e) {
-                reject(e);
-            }
-        });
-    };
+        resolve(true);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
 
-    const reRefreshAccessToken = () => {
-        const authToken = useAuthToken();
+  const refreshToken = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await $fetch("/api/auth/refresh");
+        setToken(data.access_token);
+        resolve(true);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
+  const getUser = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await useFetchApi("/api/auth/user");
+        setUser(data.user);
+        resolve(true);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
 
-        if (!authToken.value) return;
+  const reRefreshAccessToken = () => {
+    const authToken = useAuthToken();
 
-        const jwt = jwtDecode(authToken.value);
+    if (!authToken.value) return;
 
-        const newRefreshTime = jwt.exp - 60000;
+    const jwt = jwtDecode(authToken.value);
 
-        setTimeout(async () => {
-            await refreshToken();
-            reRefreshAccessToken();
-        }, newRefreshTime);
-    };
+    const newRefreshTime = jwt.exp - 60000;
 
-    const initAuth = () => {
-        return new Promise(async (resolve, reject) => {
-            setIsAuthLoading(true);
-            try {
-                await refreshToken();
-                await getUser();
+    setTimeout(async () => {
+      await refreshToken();
+      reRefreshAccessToken();
+    }, newRefreshTime);
+  };
 
-                reRefreshAccessToken();
+  const initAuth = () => {
+    return new Promise(async (resolve, reject) => {
+      setIsAuthLoading(true);
+      try {
+        await refreshToken();
+        await getUser();
 
-                resolve(true);
-            } catch (e) {
-                reject(e);
-            } finally {
-                setIsAuthLoading(false);
-            }
-        });
-    };
+        reRefreshAccessToken();
 
-    return {
-        login,
-        useAuthUser,
-        useAuthToken,
-        initAuth,
-        useAuthLoading,
-    };
+        resolve(true);
+      } catch (e) {
+        reject(e);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    });
+  };
+
+  return {
+    login,
+    useAuthUser,
+    useAuthToken,
+    initAuth,
+    useAuthLoading,
+  };
 };

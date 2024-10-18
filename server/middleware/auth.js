@@ -4,38 +4,38 @@ import { sendError } from "h3";
 import { getUserById } from "../db/users";
 
 export default defineEventHandler(async (event) => {
-  const endpoints = ["/api/auth/user"];
+    const endpoints = ["/api/auth/user", "/api/user/tweets"];
 
-  const isHandledByThisMiddleware = endpoints.some((endpoint) => {
-    const pattern = new UrlPattern(endpoint);
+    const isHandledByThisMiddleware = endpoints.some((endpoint) => {
+        const pattern = new UrlPattern(endpoint);
 
-    return pattern.match(event.node.req.url);
-  });
+        return pattern.match(event.node.req.url);
+    });
 
-  if (!isHandledByThisMiddleware) {
-    return;
-  }
+    if (!isHandledByThisMiddleware) {
+        return;
+    }
 
-  const token = event.node.req.headers["authorization"]?.split(" ")[1];
+    const token = event.node.req.headers["authorization"]?.split(" ")[1];
 
-  const decoded = decodeAccessToken(token);
+    const decoded = decodeAccessToken(token);
 
-  if (!decoded) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        statusMessage: "Unauthorized",
-      }),
-    );
-  }
+    if (!decoded) {
+        return sendError(
+            event,
+            createError({
+                statusCode: 401,
+                statusMessage: "Unauthorized",
+            }),
+        );
+    }
 
-  try {
-    const userId = decoded.userId;
-    const user = await getUserById(userId);
+    try {
+        const userId = decoded.userId;
+        const user = await getUserById(userId);
 
-    event.context.auth = { user };
-  } catch (error) {
-    return;
-  }
+        event.context.auth = { user };
+    } catch (error) {
+        return;
+    }
 });
